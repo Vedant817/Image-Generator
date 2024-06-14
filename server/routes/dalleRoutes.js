@@ -1,7 +1,7 @@
 import express from "express";
 import * as dotenv from "dotenv";
 // import { Configuration, OpenAIApi} from 'openai';
-import OpenAIApi from 'openai'
+import OpenAI from "openai";
 
 dotenv.config();
 const router = express.Router();
@@ -11,7 +11,7 @@ const router = express.Router();
 // })
 
 // const openai = new OpenAIApi(configuration);
-const openai = new OpenAIApi({ //? Valid for newer versions.
+const openai = new OpenAI({ //? Valid for newer versions.
     apiKey: process.env.OPENAI_API_KEY,
 })
 
@@ -22,17 +22,19 @@ router.route('/').get((req,res)=>{
 router.route('/').post(async (req,res)=>{ //? Create an image using OpenAI
     try {
         const {prompt} = req.body;
-        const aiResponse= await openai.createImage({
+        const aiResponse= await openai.images.generate({
+            model: "dall-e-3",
             prompt,
             n: 1,
             size: '1024x1024',
             response_format: 'b64_json'
         });
-        const image = aiResponse.data.data[0].b64_json;
+        console.log(aiResponse);
+        const image = aiResponse.data[0].url.b64_json;
         res.status(200).json({photo: image });
     } catch (error) {
         console.log(error);
-        res.status(500).send(error?.response.data.error.message)
+        res.status(500).send(error)
     }
 })
 
